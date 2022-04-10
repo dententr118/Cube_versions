@@ -23,11 +23,11 @@ class LessonResource(Resource):
         ret["course"]["lessons"] = [item.to_dict(only=('id', 'name')) for item in list(lesson.words)]
         return jsonify(ret)
 
-    def delete(self, course_id):
-        abort_if_news_not_found(course_id)
+    def delete(self, lesson_id):
+        abort_if_news_not_found(lesson_id)
         session = db_session.create_session()
-        course = session.query(Lessons).get(course_id)
-        session.delete(course)
+        lesson = session.query(Lessons).get(lesson_id)
+        session.delete(lesson)
         session.commit()
         return jsonify({'success': 'OK'})
 
@@ -37,17 +37,16 @@ class LessonListResource(Resource):
         session = db_session.create_session()
         cur_user = session.query(User).filter(User.id == user_id).first()
         return jsonify({'lessons': [item.to_dict(
-            only=('id', 'name', 'about')) for item in cur_user.courses]})
+            only=('id', 'name', 'about')) for item in cur_user.lessons]})
 
     def post(self):
         args = parserAdd.parse_args()
         session = db_session.create_session()
-        course = Lessons(
+        lesson = Lessons(
             id=args['id'],
             name=args['name'],
-            about=args['about'],
-            author=args["author"]
+            words=args['words']
         )
-        session.add(course)
+        session.add(lesson)
         session.commit()
         return jsonify({'success': 'OK'})
